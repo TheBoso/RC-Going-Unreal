@@ -2,6 +2,7 @@
 
 
 #include "ArenaManager.h"
+#include <ArenaMoby.h>
 
 // Sets default values for this component's properties
 UArenaManager::UArenaManager()
@@ -106,6 +107,11 @@ void UArenaManager::SpawnEnemy()
                 if (SpawnedEnemy)
                 {
                     SpawnedEnemy->OnDestroyed.AddDynamic(this, &UArenaManager::OnEnemyDestroyed);
+                    UArenaMoby* arenaMoby = SpawnedEnemy->FindComponentByClass < UArenaMoby>();
+                    if (arenaMoby != nullptr)
+                    {
+                        arenaMoby->OnArenaInit();
+                    }
                 }
 
             }
@@ -117,8 +123,12 @@ void UArenaManager::SpawnEnemy()
 void UArenaManager::OnEnemyDestroyed(AActor* DestroyedEnemy)
 {
     RemainingEnemies--;
+    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Arena Enemy Killed!"));
+
     if (RemainingEnemies <= 0)
     {
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("All enemies killed, starting new wave!"));
+
         CurrentWaveIndex++;
         StartNextWave();
     }
