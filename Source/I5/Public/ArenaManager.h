@@ -32,7 +32,7 @@ private:
 	int32 CurrentWaveIndex;
 	int32 RemainingEnemies;
 	FTimerHandle SpawnTimerHandle;
-	void SpawnEnemy();
+	void SpawnEnemies();
 	void SpawnIndividualEnemy(TSubclassOf<AActor> enemy, FVector spawnLocation);
 	float InitialDelay;
 	float SpawnInterval = 0.07f;

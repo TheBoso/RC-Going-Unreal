@@ -61,19 +61,22 @@ void UArenaManager::SpawnWave()
     if (!SelectedArenaConfig) return;
     this->InitialDelay = 0.0f;
 
-    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Spawning Wave"));
 
+    RemainingEnemies = 0;
     //  Setup the total number of enemies
     for (FArenaEnemyEntry entry : SelectedArenaConfig->WaveEntries[CurrentWaveIndex].Enemies)
     {
         RemainingEnemies += entry.EnemyCount;
     }
 
-    SpawnEnemy();
+    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
+        *FString::Printf(TEXT("Enemies: %d"), RemainingEnemies));
+
+    SpawnEnemies();
 }
 
 
-void UArenaManager::SpawnEnemy()
+void UArenaManager::SpawnEnemies()
 {
     if ( RemainingEnemies <= 0)
     {
@@ -105,7 +108,7 @@ void UArenaManager::SpawnEnemy()
               // Create a copy of the enemy type for binding
                 TSubclassOf<AActor> EnemyToSpawn = entry.EnemyType;
                 FVector SpawnLocationVector = SpawnLocation->GetActorLocation();
-
+                /*
 
                 FTimerHandle TimerHandle;
                 GetWorld()->GetTimerManager().SetTimer(
@@ -117,10 +120,11 @@ void UArenaManager::SpawnEnemy()
                     InitialDelay,
                     false
                 );
+                */
 
-             //   SpawnIndividualEnemy(entry.EnemyType, SpawnLocationVector);
+                  SpawnIndividualEnemy(entry.EnemyType, SpawnLocationVector);
 
-                InitialDelay += SpawnInterval; // Increase delay for next enemy
+              //  InitialDelay += SpawnInterval; // Increase delay for next enemy
 
 
 
@@ -134,7 +138,10 @@ void UArenaManager::SpawnEnemy()
 
 void UArenaManager::SpawnIndividualEnemy(TSubclassOf<AActor> enemy, FVector spawnLocation)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Enemy Spawned"));
+    float XOffset = FMath::RandRange(-5.0f, 5.0f); // Adjust the range as needed
+    float YOffset = FMath::RandRange(-5.0f, 5.0f); // Adjust the range as needed
+    spawnLocation.X += XOffset;
+    spawnLocation.Y += YOffset;
 
     AActor* SpawnedEnemy = GetWorld()->SpawnActor<AActor>(enemy, spawnLocation, FRotator::ZeroRotator);
     if (SpawnedEnemy)
@@ -153,7 +160,9 @@ void UArenaManager::SpawnIndividualEnemy(TSubclassOf<AActor> enemy, FVector spaw
 void UArenaManager::OnEnemyDestroyed(AActor* DestroyedEnemy)
 {
     RemainingEnemies--;
-    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Arena Enemy Killed!"));
+    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
+        *FString::Printf(TEXT("Arena Enemy Killed! Remaining: %d"), RemainingEnemies));
+
 
     if (RemainingEnemies <= 0)
     {
