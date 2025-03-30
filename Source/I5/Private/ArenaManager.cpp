@@ -59,6 +59,7 @@ void UArenaManager::StartNextWave()
 void UArenaManager::SpawnWave()
 {
     if (!SelectedArenaConfig) return;
+    this->InitialDelay = 0.0f;
 
     GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Spawning Wave"));
 
@@ -92,31 +93,60 @@ void UArenaManager::SpawnEnemy()
             AActor* SpawnLocation = SpawnPoints[FMath::RandRange(0, SpawnPoints.Num() - 1)];
             if (SpawnLocation)
             {
+                // Create a timer delegate with parameters
+               // FTimerDelegate TimerDelegate;
+             //   TimerDelegate.BindUObject(this, &UArenaManager::SpawnEnemy, entry.EnemyType);
+
+                // Set a timer to call the SpawnEnemy function with a delay
+             //   FTimerHandle TimerHandle;
+            //    GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, InitialDelay, false);
+
+
+              // Create a copy of the enemy type for binding
+                TSubclassOf<AActor> EnemyToSpawn = entry.EnemyType;
                 FVector SpawnLocationVector = SpawnLocation->GetActorLocation();
-                AActor* SpawnedEnemy = GetWorld()->SpawnActor<AActor>(entry.EnemyType, SpawnLocationVector, FRotator::ZeroRotator);
-                //  Hack: Move the enemy slightly so that it can fire overlap events
-                //SpawnedEnemy->SetActorLocation(SpawnLocationVector * 2);
-
-                /*
-                FVector ForwardOffset = SpawnedEnemy->GetActorForwardVector() * 1.0f; // Adjust the value as need
-                */
 
 
-                GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Enemy Spawned"));
-
-                if (SpawnedEnemy)
-                {
-                    SpawnedEnemy->OnDestroyed.AddDynamic(this, &UArenaManager::OnEnemyDestroyed);
-                    UArenaMoby* arenaMoby = SpawnedEnemy->FindComponentByClass < UArenaMoby>();
-                    if (arenaMoby != nullptr)
+                FTimerHandle TimerHandle;
+                GetWorld()->GetTimerManager().SetTimer(
+                    TimerHandle,
+                    [this, EnemyToSpawn, SpawnLocationVector]()
                     {
-                        arenaMoby->OnArenaInit();
-                    }
-                }
+                        SpawnIndividualEnemy(EnemyToSpawn, SpawnLocationVector);
+                    },
+                    InitialDelay,
+                    false
+                );
+
+             //   SpawnIndividualEnemy(entry.EnemyType, SpawnLocationVector);
+
+                InitialDelay += SpawnInterval; // Increase delay for next enemy
+
+
+
+
+           
 
             }
         }
     }
+}
+
+void UArenaManager::SpawnIndividualEnemy(TSubclassOf<AActor> enemy, FVector spawnLocation)
+{
+    GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, TEXT("Enemy Spawned"));
+
+    AActor* SpawnedEnemy = GetWorld()->SpawnActor<AActor>(enemy, spawnLocation, FRotator::ZeroRotator);
+    if (SpawnedEnemy)
+    {
+        SpawnedEnemy->OnDestroyed.AddDynamic(this, &UArenaManager::OnEnemyDestroyed);
+        UArenaMoby* arenaMoby = SpawnedEnemy->FindComponentByClass < UArenaMoby>();
+        if (arenaMoby != nullptr)
+        {
+            arenaMoby->OnArenaInit();
+        }
+    }
+
 }
 
 

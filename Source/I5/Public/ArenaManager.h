@@ -24,6 +24,8 @@ public:
 	void StartArena();
 	void StartNextWave();
 	void SpawnWave();
+
+	UFUNCTION()
 	void OnEnemyDestroyed(AActor* DestroyedEnemy);
 
 private:
@@ -31,6 +33,9 @@ private:
 	int32 RemainingEnemies;
 	FTimerHandle SpawnTimerHandle;
 	void SpawnEnemy();
+	void SpawnIndividualEnemy(TSubclassOf<AActor> enemy, FVector spawnLocation);
+	float InitialDelay;
+	float SpawnInterval = 0.07f;
 
 
 protected:
