@@ -9,6 +9,8 @@
 
 class UAIPerceptionComponent;
 DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(bool, FActorValidationDelegate, const AActor*, ActorToValidate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetChanged, AActor*, NewTarget);
+
 
 UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class I5_API UAITargetManager : public UActorComponent
@@ -36,6 +38,9 @@ public:
 	bool IsValidActor_Implementation(AActor* ActorToValidate) const;
 UFUNCTION(BlueprintCallable, Category = "AI|Targeting")
 	AActor* GetCurrentTarget() const {return this->CurrentTarget;}
+
+	UPROPERTY(BlueprintAssignable, Category = "AI|Targeting")
+	FOnTargetChanged OnTargetChanged;
 
 
 private:

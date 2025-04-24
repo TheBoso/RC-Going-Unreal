@@ -29,6 +29,7 @@ void UAITargetManager::OnAIPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
     if (!CurrentTarget)
     {
         CurrentTarget = Actor;
+    	OnTargetChanged.Broadcast(Actor);
         return;
     }
 
@@ -39,6 +40,7 @@ void UAITargetManager::OnAIPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
         if (!Stimulus.WasSuccessfullySensed())
         {
             CurrentTarget = nullptr;
+        	OnTargetChanged.Broadcast(nullptr);
         //    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Lost track of target"));
         }
         return;
@@ -64,6 +66,8 @@ void UAITargetManager::OnAIPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
         //    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Switching to closer target"));
         }
     }
+
+	OnTargetChanged.Broadcast(CurrentTarget);
 }
 
 
